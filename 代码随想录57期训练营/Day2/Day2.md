@@ -138,3 +138,161 @@ public class Solution {
     }
 }
 ```
+
+## 区间和
+
+题目描述
+给定一个整数数组 Array，请计算该数组在每个指定区间内元素的总和。
+输入描述
+第一行输入为整数数组 Array 的长度 n，接下来 n 行，每行一个整数，表示数组的元素。随后的输入为需要计算总和的区间下标：a，b （b > = a），直至文件结束。
+输出描述
+输出每个指定区间内元素的总和。
+输入示例
+5
+1
+2
+3
+4
+5
+0 1
+1 3
+输出示例
+3
+9
+提示信息
+数据范围：
+0 < n <= 100000
+
+![前缀和](./前缀和.png)
+
+[a, b] => p[b] - p [a - 1]
+
+if a == 0 then return p[b]
+
+```c++
+#include <iostream>
+#include <vector>
+using namespace std;
+ 
+int main()
+{
+    int n, a, b;
+    cin >> n;
+    vector<int> vec(n);
+    vector<int> p(n);
+    int sum = 0;
+    for (int i = 0; i < n; i++)
+    {
+        cin >> vec[i];
+        sum += vec[i];
+        p[i] = sum;
+    }
+     
+    sum = 0;
+    while (cin >> a >> b)
+    {
+        if (a == 0)
+            sum = p[b];
+        else
+            sum = p[b] - p[a - 1];
+        std::cout << sum << std::endl;
+    }
+}
+```
+
+## 开发商划分土地
+
+在一个城市区域内，被划分成了n * m个连续的区块，每个区块都拥有不同的权值，代表着其土地价值。目前，有两家开发公司，A 公司和 B 公司，希望购买这个城市区域的土地。 
+
+现在，需要将这个城市区域的所有区块分配给 A 公司和 B 公司。
+
+然而，由于城市规划的限制，只允许将区域按横向或纵向划分成两个子区域，而且每个子区域都必须包含一个或多个区块。 为了确保公平竞争，你需要找到一种分配方式，使得 A 公司和 B 公司各自的子区域内的土地总价值之差最小。 
+
+注意：区块不可再分
+
+输入描述
+第一行输入两个正整数，代表 n 和 m。 
+
+接下来的 n 行，每行输出 m 个正整数。
+
+输出描述
+请输出一个整数，代表两个子区域内土地总价值之间的最小差距。
+输入示例
+
+3 3
+
+1 2 3
+
+2 1 3
+
+1 2 3
+
+输出示例
+0
+提示信息
+如果将区域按照如下方式划分：
+
+1 2 | 3
+
+2 1 | 3
+
+1 2 | 3 
+
+两个子区域内土地总价值之间的最小差距可以达到 0。
+
+关键在于求出每一行的和还有每一列的和，这样就可以计算行与列的前缀和。
+
+```c++
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+int main()
+{
+    int n, m;
+    cin >> n >> m;
+    
+    vector<vector<int>> vec(n, vector<int>(m, 0));
+    int sum = 0;
+    
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+        {
+            cin >> vec[i][j];
+            sum += vec[i][j];
+        }
+        
+    vector<int> horizontal(n, 0);
+    vector<int> vertical(m, 0);
+    
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            horizontal[i] += vec[i][j];
+            
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            vertical[j] += vec[i][j];
+    
+    int result = INT_MAX;
+    int horizontalSum = 0;
+    int verticalSum = 0;
+    
+    for (int i = 0; i < n; i++)
+    {
+        horizontalSum += horizontal[i];
+        result = min(result, abs(sum - horizontalSum - horizontalSum));
+    }
+    
+    for (int j = 0; j < m; j++)
+    {
+        verticalSum += vertical[j];
+        result = min(result, abs(sum - verticalSum - verticalSum));
+    }
+    
+    std::cout << result << std::endl;
+}
+```
+
+或者在遍历全组时，累加所有遍历过的值，在行尾和列尾计算一次差值。
